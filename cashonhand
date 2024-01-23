@@ -25,7 +25,8 @@ print(cashlist)
 for data in CashonHand:
       day=float(data[0])
       Cashhand=float(data[1])
-dndndndndn
+
+
 
 
 
