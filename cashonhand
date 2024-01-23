@@ -1,0 +1,37 @@
+from pathlib import Path
+import csv
+
+# create a file path to csv file.
+fp = Path.cwd()/"Cash-On-Hand.xlxs"
+
+# read the csv file.
+with fp.open(mode="r", encoding="UTF-8", newline="") as file:
+    reader = csv.reader(file)
+    next(reader) 
+    CashonHand=[] 
+    for row in reader:
+        CashonHand.append([row[0],row[1]])   
+
+cashlist=[] 
+#create a empty dictionary
+CashonHanddict={}
+for Day in CashonHand:
+      if Day[0] not in CashonHand:
+            cashlist.append(Day[0])
+
+cashlist.sort()
+print(cashlist)
+
+for data in CashonHand:
+      day=float(data[0])
+      Cashhand=float(data[1])
+dndndndndn
+
+
+
+
+
+
+
+
+
