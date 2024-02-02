@@ -1,0 +1,12 @@
+#import modules 
+from pathlib import Path
+import cashonhand, overheads, profitandloss
+#define the main function
+def main():
+    #call overhead function from overheads module 
+    overheads.overhead_function()
+    #call cashonhand function from cashonhand module
+    cashonhand.COH_function()
+    #call profitandloss function from profitandloss module
+    profitandloss.profitandloss_function()
+main()
