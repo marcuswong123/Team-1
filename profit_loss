@@ -1,0 +1,81 @@
+from pathlib import Path
+import csv
+#define the profitandloss function to process the csv data
+def profitandloss_function():
+    #intialise empty lists to store the csvdata and profitdiff
+    csvdata = []
+    profitdiff = []
+    #create the file path to input CSV and output summary_text.txt
+    filepath = Path.cwd() / "csv_reports" / "profit-and-loss.csv"
+    fp = Path.cwd() / "summary_report.txt"
+    #open the CSV file in read mode and create a CSV reader object
+    with filepath.open(mode="r", encoding="UTF-8", newline="") as file:
+        csvreader = csv.reader(file)
+        next(csvreader)#skip header row 
+        #iterate through each row in CSV file and store them in the csvdata list
+        for row in csvreader:
+            csvdata.append(row)
+    #calculate the profit diff for each day 
+    for day in range(1, len(csvdata)):
+        diff = float(csvdata[day][4]) - float(csvdata[day-1][4])
+        profitdiff.append(diff)
+    #check if everyday is surplus 
+    everydaysurplus = True
+    for diff in profitdiff:
+        if diff <= 0:
+            everydaysurplus = False
+            break
+    #check if everyday is deficit
+    everydaydeficit = True
+    for diff in profitdiff:
+        if diff >= 0:
+            everydaydeficit = False
+            break
+    #if its everyday surplus, find the day with the highest profit surplus
+    with fp.open(mode="a", encoding="UTF-8", newline="") as file:
+        if everydaysurplus:
+            highestprofitsurplus = profitdiff[0]
+            highestday = csvdata[1][0]
+            for day, diff in enumerate(profitdiff, start=1):
+                if diff > highestprofitsurplus:
+                    highestprofitsurplus = diff
+                    highestday = csvdata[day][0]
+            #write the highest profit surplus info to summary_report.txt
+            file.write(f'[NET PROFIT SURPLUS] NET PROFIT ON EACH DAY IS HIGHER THAN THE PREVIOUS DAY\n')
+            file.write(f'[NET PROFIT SURPLUS] Day {highestday}, Amount: SGD {highestprofitsurplus}\n')
+        #if its everyday deficit, find the day with the highest profit deficit
+        elif everydaydeficit:
+            highestprofitdeficit = profitdiff[0]
+            highestday = csvdata[1][0]
+            for day, diff in enumerate(profitdiff, start=1):
+                if diff < highestprofitdeficit:
+                    highestprofitdeficit = abs(diff)
+                    highestday = csvdata[day][0]
+            #write the highest profit deficit info to summary_report.txt
+            file.write(f'[NET PROFIT DEFICIT] NET PROFIT ON EACH DAY IS LOWER THAN THE PREVIOUS DAY\n')
+            file.write(f'[NET PROFIT DEFICIT] Day {highestday}, Amount: SGD {abs(highestprofitdeficit)}\n')
+        #if there is no surplus or deficit everyday, report days with profit deficit together with highest 3 deficits 
+        else:
+            #generates a list of tuples containing days and their profit deficits for days with deficit
+            newdeficits = [(csvdata[day + 1][0], diff) for day, diff in enumerate(profitdiff) if diff < 0]
+            deficit_amounts = [(abs(diff), day) for day, diff in newdeficits]
+            deficit_amounts.sort(reverse=True) 
+            #selects top 3 largest deficits and prints it in output 
+            top_3_deficits = deficit_amounts[:3]
+
+            if len(top_3_deficits) > 0:
+                deficit, day = top_3_deficits[0]
+                file.write(f'[HIGHEST NET PROFIT DEFICIT] DAY: {day}, AMOUNT: SGD {deficit}\n')
+            
+            if len(top_3_deficits) > 1:
+                deficit, day = top_3_deficits[1]
+                file.write(f'[2nd HIGHEST NET PROFIT DEFICIT] DAY: {day}, AMOUNT: SGD{deficit}\n')
+
+            if len(top_3_deficits) > 2:
+                deficit, day = top_3_deficits[2]
+                file.write(f'[3rd HIGHEST NET PROFIT DEFICIT] DAY: {day}, AMOUNT: SGD {deficit}\n')
+            #if not in top3 but is deficit, it will print out all the deficit days and amount
+            for day, diff in newdeficits:
+                positivediff = abs(diff)
+                if (positivediff, day) not in top_3_deficits:
+                    file.write(f'[NET PROFIT DEFICIT] DAY: {day}, AMOUNT: SGD {positivediff}\n')
