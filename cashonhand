@@ -44,7 +44,44 @@ def COH_function():
             #writes [CASH SURPLUS]LINE and highest cash surplus info to summary_report.txt
             file.write("[CASH SURPLUS] CASH ON EACH DAY IS HIGHER THAN PREVIOUS DAY\n")
             file.write(f'[HIGHEST CASH SURPLUS] DAY: {highestsurplusday}, AMOUNT: SGD{highestsurplus}\n')
+ # if there is deficit everyday find day with highest cash deficit
+        elif everydaydeficit:
+            highestdeficit = cashdiff[0]
+            highestdeficitday = csvdata[1][0]
+            for day, diff in enumerate(cashdiff, start=1):
+                if diff < highestdeficit:
+                    highestdeficit = abs(diff) #makes -ve value +ve 
+                    highestdeficitday = csvdata[day][0]
+            #write the [CASH DEFICIT]LINE and highest cash deficit information to summary_report.txt
+            file.write("[CASH DEFICIT] CASH ON EACH DAY IS LOWER THAN PREVIOUS DAY\n")
+            file.write(f'[HIGHEST CASH DEFICIT] DAY: {highestdeficitday}, AMOUNT: SGD {abs(highestdeficit)}\n')
+        #if there is no surplus or deficit everyday, report days with cash deficit together with highest 3 deficits 
+        else:
+            #generates a list of tuples containing days and their cash deficits for days with deficit
+            deficits_with_days = [(csvdata[day + 1][0], abs(diff)) for day, diff in enumerate(cashdiff) if diff < 0]
+            deficit_amounts = [abs(diff) for day, diff in deficits_with_days]#makes -ve value +ve 
+            deficit_amounts.sort(reverse=True)  #sorts the deficits in descending order
+            #selects top 3 largest deficits and prints it in output 
+            top_3_deficits = deficit_amounts[:3]
+            for day, diff in deficits_with_days:
+                if top_3_deficits[0] == diff:
+                    file.write(f'[HIGHEST CASH DEFICIT] DAY: {day}, AMOUNT: SGD {diff}\n')
+                    break
+            if len(top_3_deficits) > 1:
+                for day, diff in deficits_with_days:
+                    if top_3_deficits[1] == diff:
+                        file.write(f'[2nd HIGHEST CASH DEFICIT] DAY: {day}, AMOUNT: SGD {diff}\n')
+                        break
 
+            if len(top_3_deficits) > 2:
+                for day, diff in deficits_with_days:
+                    if top_3_deficits[2] == diff:
+                        file.write(f'[3rd HIGHEST CASH DEFICIT] DAY: {day}, AMOUNT: SGD {diff}\n')
+                        break
+            #if not in top3 but is deficit, it will print out all the deficit days and amount
+            for day, deficit in deficits_with_days:
+                if deficit not in top_3_deficits:
+                    file.write(f'[CASH DEFICIT] DAY: {day}, AMOUNT: SGD {deficit}\n')
 
 
 
